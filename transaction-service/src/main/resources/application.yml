@@ -1,0 +1,51 @@
+
+server:
+  port: 8082
+
+spring:
+  application:
+    name: transaction-service
+  # datasource configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/transactions
+    username: admin
+
+    password: admin
+    driver-class-name: org.postgresql.Driver
+  # jpa configuration
+  jpa:
+    hibernate:
+      hbm2ddl:
+        auto: update
+#      ddl-auto: update  # Disable auto-creation of tables by Hibernate for entities (Flyway will handle schema creation)
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: postgresql
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+
+  # batch configuration
+  batch:
+    jdbc:
+      initialize-schema: always  # Hibernate will handle batch schema
+    job:
+      enabled: false
+  # flyway configuration
+  flyway:
+    enabled: true
+    baseline-on-migrate: true  # Baseline schema migrations, if existing data is present
+    locations: classpath:db/migration  # Location of Flyway scripts
+    schemas: public
+    table: flyway_schema_history  # Default table for Flyway migration history
+
+#logging:
+#  level:
+#    org:
+#      hibernate:
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE

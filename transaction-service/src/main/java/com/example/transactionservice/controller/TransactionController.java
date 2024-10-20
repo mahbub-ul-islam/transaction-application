@@ -3,6 +3,7 @@ package com.example.transactionservice.controller;
 import com.example.transactionservice.dto.request.FilterRequestDto;
 import com.example.transactionservice.dto.request.TransactionRequestDto;
 import com.example.transactionservice.dto.response.TransactionResponseDto;
+import com.example.transactionservice.exception.errors.resource.TransactionOptimisticLockException;
 import com.example.transactionservice.service.TransactionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,8 +57,13 @@ public class TransactionController {
             @PathVariable Long id,
             @RequestBody TransactionRequestDto transactionRequestDto) {
         log.info("Updating transaction with ID: {}", id);
-        TransactionResponseDto transactionResponseDto = transactionService.updateTransaction(id, transactionRequestDto);
-        return ResponseEntity.status(HttpStatus.OK).body(transactionResponseDto);
+        try {
+            TransactionResponseDto transactionResponseDto = transactionService.updateTransaction(id, transactionRequestDto);
+            return ResponseEntity.status(HttpStatus.OK).body(transactionResponseDto);
+        }catch (ObjectOptimisticLockingFailureException e) {
+            log.error("OptimisticLockException: Transaction was modified by another user. {}", e.getMessage());
+            throw new TransactionOptimisticLockException("Transaction was modified by another user. Please try again.");
+        }
     }
 
 

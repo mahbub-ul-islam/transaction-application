@@ -70,7 +70,7 @@ The application consists of the following modules:
 
 5. Create a new database for auth-service.
 
-       authorization
+       authentication
 
 6. Start the Discovery Service and check.
 
